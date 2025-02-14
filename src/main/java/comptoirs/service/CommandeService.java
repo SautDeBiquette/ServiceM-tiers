@@ -103,9 +103,7 @@ public class CommandeService {
             throw new IllegalStateException("Commande déjà envoyée");
         }
         produit.setUnitesCommandees(produit.getUnitesCommandees()+quantite);
-        produitDao.save(produit);
         Ligne nouvelleLigne = new Ligne(commande, produit,quantite);
-
         ligneDao.save(nouvelleLigne);
         return nouvelleLigne;
     }
@@ -136,9 +134,7 @@ public class CommandeService {
             Produit produit = ligne.getProduit();
             produit.setUnitesEnStock(produit.getUnitesEnStock()-ligne.getQuantite());
             produit.setUnitesCommandees(produit.getUnitesCommandees()-ligne.getQuantite());
-            produitDao.save(produit);
         }
-        commandeDao.save(commande);
         return commande;
     }
 }

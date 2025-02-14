@@ -14,6 +14,8 @@ import comptoirs.dao.LigneRepository;
 import comptoirs.dao.ProduitRepository;
 import comptoirs.entity.Commande;
 import comptoirs.entity.Ligne;
+import comptoirs.entity.Produit;
+
 
 import jakarta.validation.constraints.Positive;
 
@@ -26,15 +28,17 @@ public class CommandeService {
     private final ClientRepository clientDao;
     private final LigneRepository ligneDao;
     private final ProduitRepository produitDao;
+    private final ProduitRepository produitRepository;
 
     // @Autowired
     // Spring initialisera automatiquement ces paramètres
     public CommandeService(CommandeRepository commandeDao, ClientRepository clientDao, LigneRepository ligneDao,
-            ProduitRepository produitDao) {
+                           ProduitRepository produitDao, ProduitRepository produitRepository) {
         this.commandeDao = commandeDao;
         this.clientDao = clientDao;
         this.ligneDao = ligneDao;
         this.produitDao = produitDao;
+        this.produitRepository = produitRepository;
     }
 
     /**
@@ -89,7 +93,20 @@ public class CommandeService {
     @Transactional
     public Ligne ajouterLigne(int commandeNum, int produitRef, @Positive int quantite) {
         // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        Commande commande = commandeDao.findById(commandeNum).orElseThrow();
+        Produit produit = produitDao.findById(produitRef).orElseThrow();
+        if (produit.getUnitesEnStock()<quantite) {
+            throw new IllegalStateException("Pas assez de stocks");
+        }
+        if (commande.getEnvoyeele()!=null){
+            throw new IllegalStateException("Commande déjà envoyée");
+        }
+        produit.setUnitesCommandees(produit.getUnitesCommandees()+quantite);
+        produitDao.save(produit);
+        Ligne nouvelleLigne = new Ligne(commande, produit,quantite);
+
+        ligneDao.save(nouvelleLigne);
+        return nouvelleLigne;
     }
 
     /**

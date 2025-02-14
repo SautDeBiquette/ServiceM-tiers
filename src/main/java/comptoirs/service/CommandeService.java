@@ -2,6 +2,7 @@ package comptoirs.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
@@ -125,7 +126,19 @@ public class CommandeService {
      */
     @Transactional
     public Commande enregistreExpedition(int commandeNum) {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+        Commande commande = commandeDao.findById(commandeNum).orElseThrow();
+        if(commande.getEnvoyeele()!=null){
+            throw new IllegalStateException("Déjà envoyé !");
+        }
+        LocalDate ajdh = LocalDate.now();
+        commande.setEnvoyeele(ajdh);
+        for (Ligne ligne : commande.getLignes()) {
+            Produit produit = ligne.getProduit();
+            produit.setUnitesEnStock(produit.getUnitesEnStock()-ligne.getQuantite());
+            produit.setUnitesCommandees(produit.getUnitesCommandees()-ligne.getQuantite());
+            produitDao.save(produit);
+        }
+        commandeDao.save(commande);
+        return commande;
     }
 }

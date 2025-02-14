@@ -96,8 +96,8 @@ public class CommandeService {
         // TODO : implémenter cette méthode
         Commande commande = commandeDao.findById(commandeNum).orElseThrow();
         Produit produit = produitDao.findById(produitRef).orElseThrow();
-        if (produit.getUnitesEnStock()<quantite) {
-            throw new IllegalStateException("Pas assez de stocks");
+        if (produit.isIndisponible() || produit.getUnitesEnStock()<quantite) {
+            throw new IllegalStateException("Pas assez de stocks ou produit indisponible");
         }
         if (commande.getEnvoyeele()!=null){
             throw new IllegalStateException("Commande déjà envoyée");

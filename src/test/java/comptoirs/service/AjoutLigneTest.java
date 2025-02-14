@@ -1,7 +1,4 @@
 package comptoirs.service;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import comptoirs.dao.ProduitRepository;
 import jakarta.validation.ConstraintViolationException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
@@ -66,4 +65,10 @@ class AjoutLigneTest {
             () -> service.ajouterLigne(NUMERO_COMMANDE_PAS_LIVREE, REFERENCE_PRODUIT_DISPONIBLE_4, quantiteMaximumCommandable + 1),
             "La quantité commandée ne doit pas dépasser le enStock disponible");
     }
+    @Test
+    void leProduitEstIndisponible() {
+        assertThrows(IllegalStateException.class,() ->service.ajouterLigne(NUMERO_COMMANDE_PAS_LIVREE, REFERENCE_PRODUIT_INDISPONIBLE, 1),
+            "Le produit ne doit pas être indisponible");;
+    }
+
 }
